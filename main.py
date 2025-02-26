@@ -85,14 +85,20 @@ async def check_availability(update: Update, context: ContextTypes.DEFAULT_TYPE)
 def retrieve_free_slots(availability_data):
     available_courts = availability_data.get("available_courts", [])
     message_list = ["Available slots:"]
+    previous_slot = ""
     for court in available_courts:
         court_name = court.get("name", "Unknown court")
         message_list.append(f"\n{court_name}:")
         for slot in court.get("available_slots", []):
+            if slot.get("start", "Unknown start time") == previous_slot:
+                message = message_list.pop()
+                message_list.append(f"{message}, {slot.get('duration', 0)} mins")
+                continue
             start_time = slot.get("start", "Unknown start time")
             duration = slot.get("duration", 0)
             start_time_obj = datetime.fromisoformat(start_time)
             message_list.append(f"  - Start: {start_time_obj.strftime('%H:%M')}, Duration: {duration} mins")
+            previous_slot = start_time
     return message_list
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
