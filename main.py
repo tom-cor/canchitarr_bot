@@ -42,7 +42,9 @@ CHECKAVAILABILITY = range(1)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Starts the conversation and asks the user about their gender."""
+    user = update.message.from_user
+    logger.info(f"{user.first_name} with id {user.id} started a conversation")
+
     reply_keyboard = [["27/02", "28/02", "29/02"]]
 
     await update.message.reply_text(
@@ -75,11 +77,13 @@ async def check_availability(update: Update, context: ContextTypes.DEFAULT_TYPE)
             availability_data = response.json()
             message_list = retrieve_free_slots(availability_data)
             message = "\n".join(message_list)
+            logger.info(f"{user.first_name} retrieved the info correctly")
         else:
             message = "Error fetching availability data."
+            logger.warning(f"{user.first_name} couldn't retrieve the info")
 
     await update.message.reply_text(f"{message}", reply_markup=ReplyKeyboardRemove())
-
+    logger.info(f"{user.first_name} finished the conversation")
     return ConversationHandler.END
 
 def retrieve_free_slots(availability_data):
