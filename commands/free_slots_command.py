@@ -2,7 +2,7 @@ import datetime
 import logging
 from datetime import datetime, timedelta
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, constants
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -51,6 +51,6 @@ async def check_availability(update: Update, context: ContextTypes.DEFAULT_TYPE)
     formatted_date = date_object.strftime("%Y-%m-%d")
     message = await check_availability_for_date(formatted_date, user)
 
-    await update.message.reply_text(f"{message}", reply_markup=ReplyKeyboardRemove())
+    await update.message.reply_text(f"{message}", reply_markup=ReplyKeyboardRemove(), parse_mode=constants.ParseMode.HTML)
     logger.info(f"{user.first_name} finished the conversation")
     return ConversationHandler.END
