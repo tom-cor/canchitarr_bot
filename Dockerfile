@@ -30,6 +30,9 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
+# Ensure the logs directory is writable by the non-root user
+RUN mkdir -p /app/logs && chown appuser:appuser /app/logs
+
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
