@@ -1,5 +1,7 @@
+import os
 import json
 import logging
+from logging.handlers import TimedRotatingFileHandler
 from typing import Final
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
@@ -15,14 +17,33 @@ from telegram.ext import (
 from commands.free_slots_command import *
 from commands.cancel_command import *
 
+# Ensure the logs directory exists
+logs_dir = "logs"
+if not os.path.exists(logs_dir):
+    os.makedirs(logs_dir)
+
 # Enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    level=logging.INFO,  # Set the base logging level
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-# set higher logging level for httpx to avoid all GET and POST requests being logged
+
+# Create a timed rotating file handler for monthly log rotation
+file_handler = TimedRotatingFileHandler(
+    os.path.join(logs_dir, "bot.log"), when="S", interval=30, backupCount=0
+)
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+
+# Get the root logger and add the file handler
+logger = logging.getLogger()
+logger.addHandler(file_handler)
+
+# Suppress overly verbose logs from external libraries (like httpx)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
-logger = logging.getLogger(__name__)
+# Example usage
+logger.info("Logging setup complete. Bot is starting...")
 
 #region Config file loading
 
