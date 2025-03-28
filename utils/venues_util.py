@@ -38,16 +38,17 @@ def format_free_slots(availability_data):
     for court in available_courts:
         court_name = court.get("name", "Unknown court")
         message_list.append(f"\n{court_name}:")
-        for slot in court.get("available_slots", []):
+        for index, slot in enumerate(court.get("available_slots", []), start=1):
             if slot.get("start", "Unknown start time") == previous_slot:
                 message = message_list.pop()
                 message_list.append(f"{message}, {get_slot_duration(slot, previous_slot, court_name)}")
                 continue
             start_time = slot.get("start", "Unknown start time")
-            logger.info(f"Start time: {start_time}")
-            duration = get_slot_duration(slot, start_time, court_name)
+            duration = slot.get("duration", 0)
+            logger.info(f"Slot #{index}: Start time: {start_time}, Duration: {duration}")
+            duration_link = get_slot_duration(slot, start_time, court_name)
             start_time_obj = datetime.fromisoformat(start_time)
-            message_list.append(f"  - Start: {start_time_obj.strftime('%H:%M')}, Duration: {duration}")
+            message_list.append(f"  - Start: {start_time_obj.strftime('%H:%M')}, Duration: {duration_link}")
             previous_slot = start_time
     return message_list
 
@@ -56,9 +57,7 @@ def get_slot_duration(slot, start_time, court_name):
     date_only = start_time.split("T")[0]
     start_hour = start_time.split("T")[1].split("-")[0].split(":")[0]
     start_minutes = start_time.split("T")[1].split("-")[0].split(":")[1]
-    logger.info(f"Start hour: {start_hour}")    
-    logger.info(f"Start time: {start_time}")
-    logger.info(f"Start minutes: {start_minutes}")
+
     if str(start_minutes) != "00":
         start_hour += "%3A30"
     else:
