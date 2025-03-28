@@ -30,7 +30,7 @@ logging.basicConfig(
 
 # Create a timed rotating file handler for monthly log rotation
 file_handler = TimedRotatingFileHandler(
-    os.path.join(logs_dir, "bot.log"), when="S", interval=30, backupCount=0
+    os.path.join(logs_dir, "bot.log"), when="W0", backupCount=0
 )
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
