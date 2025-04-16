@@ -66,7 +66,7 @@ def main() -> None:
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
-            CHECKAVAILABILITY: [MessageHandler(filters.Regex("^\d\d/\d\d$"), check_availability)],
+            CHECKAVAILABILITY: [MessageHandler(filters.Regex("^\d\d/\d\d"), check_availability)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
