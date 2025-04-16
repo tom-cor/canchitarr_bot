@@ -1,8 +1,9 @@
 import datetime
 import logging
+import locale
 from datetime import datetime, timedelta
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, constants
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, constants, KeyboardButton
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -19,17 +20,30 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
     logger.info(f"{user.first_name} with id {user.id} started a conversation")
 
+    # Set the locale to Spanish (Argentina)
+    locale.setlocale(locale.LC_TIME, "es_AR.UTF-8")
+
+    # Generate the reply keyboard with weekdays in Spanish
     today = datetime.today()
+    keyboard_options =   [
+                    f"{(today + timedelta(days=i)).strftime('%d/%m')} ({(today + timedelta(days=i)).strftime('%A').capitalize()})" 
+                    for i in range(1, 8)
+                ]    
+    
     reply_keyboard = [
-        [(today + timedelta(days=i)).strftime("%d/%m") for i in range(1, 8)]
+            keyboard_options[0:3],
+            keyboard_options[3:6],
+            keyboard_options[6:7],
     ]
 
     await update.message.reply_text(
-        "Qué hace mostro? Sacate el plug de la cola y prestame atención. "
-        "Podes escribir /cancel si te hinchaste los huevos.\n\n"
+        "Qué hace mostro? Acá respetamos a los jugadores de padel y no hacemos memes de ellos. "
+        "Podes escribir /cancel si se te resbaló el dedo.\n\n"
         "Para qué fecha (dd/mm) queres que te diga los turnos disponibles?",
         reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True, input_field_placeholder="dd/mm"
+            reply_keyboard,
+            one_time_keyboard=True,
+            input_field_placeholder="dd/mm",
         ),
     )
 
@@ -42,7 +56,7 @@ async def check_availability(update: Update, context: ContextTypes.DEFAULT_TYPE)
     user = update.message.from_user
     
     try:
-        date_string = f"{update.message.text}/{datetime.today().year}"
+        date_string = f"{update.message.text.split(' ')[0]}/{datetime.today().year}"
         date_object = datetime.strptime(date_string, "%d/%m/%Y")  
     except:
         await update.message.reply_text("Te crees piola? Ingresá bien la fecha, payaso.", reply_markup=ReplyKeyboardRemove())
