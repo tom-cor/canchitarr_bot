@@ -20,10 +20,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
     logger.info(f"{user.first_name} with id {user.id} started a conversation")
 
-    # Set the locale to Spanish (Argentina)
-    locale.setlocale(locale.LC_TIME, "es_AR.UTF-8")
-
-    # Generate the reply keyboard with weekdays in Spanish
+    # Generate the reply keyboard with weekdays
     today = datetime.today()
     keyboard_options =   [
                     f"{(today + timedelta(days=i)).strftime('%d/%m')} ({(today + timedelta(days=i)).strftime('%A').capitalize()})" 

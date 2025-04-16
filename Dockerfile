@@ -18,6 +18,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+# # Install locales and configure es_AR.UTF-8
+# RUN apt-get update && apt-get install -y locales \
+#     && locale-gen es_AR.UTF-8 \
+#     && update-locale LANG=es_AR.UTF-8
+
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 ARG UID=10001
