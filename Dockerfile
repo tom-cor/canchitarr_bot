@@ -16,12 +16,21 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
+# Avoid warnings by switching to noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+
 WORKDIR /app
 
-# # Install locales and configure es_AR.UTF-8
-# RUN apt-get update && apt-get install -y locales \
-#     && locale-gen es_AR.UTF-8 \
-#     && update-locale LANG=es_AR.UTF-8
+# Install locales and configure es_AR.UTF-8
+RUN apt-get update && apt-get install -y locales \
+    && echo "es_AR.UTF-8 UTF-8" >> /etc/locale.gen \
+    && locale-gen es_AR.UTF-8 \
+    && update-locale LANG=es_AR.UTF-8
+
+# Set environment variables for the locale
+ENV LANG=es_AR.UTF-8
+ENV LANGUAGE=es_AR:es
+ENV LC_ALL=es_AR.UTF-8
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
@@ -56,4 +65,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application.
-CMD python main.py app:app --host=0.0.0.0 --port=8000
+CMD ["python", "main.py", "app:app", "--host=0.0.0.0", "--port=8000"]
