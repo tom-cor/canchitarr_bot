@@ -3,7 +3,7 @@ import logging
 import locale
 from datetime import datetime, timedelta
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, constants, KeyboardButton
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, constants, KeyboardButton, LinkPreviewOptions
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -63,8 +63,8 @@ async def check_availability(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return CHECKAVAILABILITY
 
     formatted_date = date_object.strftime("%Y-%m-%d")
-    message = await check_availability_for_date(formatted_date, user)
-
-    await update.message.reply_text(f"{message}", reply_markup=ReplyKeyboardRemove(), parse_mode=constants.ParseMode.HTML)
+    message_list = await check_availability_for_date(formatted_date, user)
+    for message in message_list:
+        await update.message.reply_text(f"{message}", reply_markup=ReplyKeyboardRemove(), parse_mode=constants.ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True))
     logger.info(f"{user.first_name} finished the conversation")
     return ConversationHandler.END
