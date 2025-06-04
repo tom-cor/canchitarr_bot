@@ -15,10 +15,18 @@ from telegram.ext import (
 
 logger = logging.getLogger(__name__)
 
+
+CLUB_IDS = {
+    "Cabildo Club": 678,
+    "Bequin": 397
+}
+
+def get_club_id(club_name: str):
+    return CLUB_IDS.get(club_name, None)
+
 async def check_availability_for_date(date: str, user, court_ids=None):
     if court_ids is None:
-        court_ids = {"Cabildo Club": 678,
-                     "Bequin": 397}  # Default to the original court if not provided
+        court_ids = CLUB_IDS
 
     message_list = []
     async with httpx.AsyncClient() as client:
@@ -53,11 +61,11 @@ def format_free_slots(availability_data):
                 continue  # Skip 60 min slots
             if slot.get("start", "Unknown start time") == previous_slot:
                 msg = message.pop()
-                message.append(f"{msg}, {get_slot_duration(slot, previous_slot, court_id, is_beelup)}")
+                message.append(f"{msg}, {get_slot_duration(slot, previous_slot, club_name, court_id, is_beelup)}")
                 continue
             start_time = slot.get("start", "Unknown start time")
             logger.info(f"Slot #{index}: Start time: {start_time}, Duration: {duration}")
-            duration_link = get_slot_duration(slot, start_time, court_id, is_beelup)
+            duration_link = get_slot_duration(slot, start_time, club_name, court_id, is_beelup)
             start_time_obj = datetime.fromisoformat(start_time)
             message.append(f"\n- {start_time_obj.strftime('%H:%M')}, turnos: {duration_link}")
             previous_slot = start_time
@@ -66,7 +74,7 @@ def format_free_slots(availability_data):
         message_list.append(f"No hay turnos disponibles para {club_name} en la fecha seleccionada")
     return message_list
 
-def get_slot_duration(slot, start_time, court_id, is_beelup):
+def get_slot_duration(slot, start_time, club_name, court_id, is_beelup):
     duration = slot.get("duration", 0)
     date_only = start_time.split("T")[0]
     start_hour = start_time.split("T")[1].split("-")[0].split(":")[0]
@@ -77,6 +85,8 @@ def get_slot_duration(slot, start_time, court_id, is_beelup):
     else:
         start_hour += "%3A00"
 
-    link = f'https://atcsports.io/checkout/678?day={date_only}&court={court_id}&sport_id=7&duration={duration}&start={start_hour}&end=&is_beelup={is_beelup}'
+    club_id = get_club_id(club_name)
+
+    link = f'https://atcsports.io/checkout/{club_id}?day={date_only}&court={court_id}&sport_id=7&duration={duration}&start={start_hour}&end=&is_beelup={is_beelup}'
 
     return f'<a href="{link}">{duration} mins</a>'
